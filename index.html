@@ -4,29 +4,116 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Qui est là ?</title>
-    <link rel="stylesheet" href="./dist/style.css" />
+    <link rel="stylesheet" href="dist/style/main.css" />
   </head>
   <body>
     <main>
-      <h1>Bienvenue</h1>
-      <section id="formulaire-entree">
+      <!-- ÉTAPE 1 : Choix de l'action -->
+      <section class="step" data-step="1">
+        <h2>Bienvenue ! Que voulez-vous faire ?</h2>
+        <button data-action="entrer">Entrer</button>
+        <button data-action="sortir">Sortir</button>
+      </section>
+
+      <!-- ÉTAPE 2 : Déjà venu ? (uniquement si entrer ou revenir) -->
+      <section class="step hidden" data-step="2">
+        <div class="nav-top">
+          <button class="btn-retour">← Retour</button>
+          <button class="btn-accueil">🏠 Accueil</button>
+        </div>
+        <h2>Êtes-vous déjà venu ?</h2>
+        <button data-deja-venu="oui">Oui</button>
+        <button data-deja-venu="non">Non</button>
+      </section>
+
+      <!-- ÉTAPE 3 : Choix du type de visite -->
+      <section class="step hidden" data-step="3">
+        <div class="nav-top">
+          <button class="btn-retour">← Retour</button>
+          <button class="btn-accueil">🏠 Accueil</button>
+        </div>
+        <h2>Quel est le motif de votre venue ?</h2>
+        <button data-type="personnel">Membre du personnel</button>
+        <button data-type="formation">Formation</button>
+      </section>
+
+      <!-- ÉTAPE 4 : Formulaire visiteur -->
+      <section class="step hidden" data-step="4">
+        <div class="nav-top">
+          <button class="btn-retour">← Retour</button>
+          <button class="btn-accueil">🏠 Accueil</button>
+        </div>
+        <h2>Vos informations</h2>
         <form id="entree-form">
           <input type="text" name="nom" placeholder="Nom" required />
           <input type="text" name="prenom" placeholder="Prénom" required />
           <input type="email" name="email" placeholder="Email" required />
 
-          <select name="type_visite" required>
-            <option value="" disabled selected>Type de visite</option>
-            <option value="personnel">Visite à un membre du personnel</option>
-            <option value="formation">Participation à une formation</option>
-          </select>
+          <div id="employe-group" class="option-group hidden">
+            <input
+              type="number"
+              name="employe_id"
+              placeholder="ID du personnel"
+            />
+          </div>
 
-          <!-- Ces champs peuvent être masqués/affichés dynamiquement -->
-          <input type="number" name="employe_id" placeholder="ID Employé" />
-          <input type="number" name="formation_id" placeholder="ID Formation" />
+          <div id="formation-group" class="option-group hidden">
+            <input
+              type="number"
+              name="formation_id"
+              placeholder="ID de la formation"
+            />
+          </div>
 
-          <button type="submit">Enregistrer l’entrée</button>
+          <input type="hidden" name="type_visite" id="type_visite" />
+
+          <button type="submit">Valider</button>
         </form>
+      </section>
+
+      <!-- ÉTAPE 5 : Formulaire de sortie -->
+      <section class="step hidden" data-step="5">
+        <div class="nav-top">
+          <button class="btn-retour">← Retour</button>
+          <button class="btn-accueil">🏠 Accueil</button>
+        </div>
+        <h2>Sortie du bâtiment</h2>
+        <form id="sortie-form">
+          <input
+            type="number"
+            name="visiteur_id"
+            placeholder="ID du visiteur"
+            required
+          />
+          <button type="submit">Enregistrer la sortie</button>
+        </form>
+      </section>
+
+      <!-- ÉTAPE 6 : Recherche par email (pour retour sans ID) -->
+      <section class="step hidden" data-step="6">
+        <div class="nav-top">
+          <button class="btn-retour">← Retour</button>
+          <button class="btn-accueil">🏠 Accueil</button>
+        </div>
+        <h2>Recherche par email</h2>
+        <form id="recherche-form">
+          <input
+            type="email"
+            name="email"
+            placeholder="Votre adresse email"
+            required
+          />
+          <button type="submit">Rechercher</button>
+        </form>
+      </section>
+
+      <!-- ÉTAPE 7 : Confirmation ou récapitulatif -->
+      <section class="step hidden" data-step="7" id="confirmation">
+        <h2>Merci !</h2>
+        <div id="etiquette">
+          <!-- Les infos du visiteur s'affichent ici -->
+        </div>
+        <button id="retour-accueil">Revenir à l'accueil</button>
       </section>
     </main>
 
