@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fr-BE">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Qui est là ?</title>
+    <link rel="stylesheet" href="./dist/style.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Bienvenue</h1>
+      <section id="formulaire-entree">
+        <form id="entree-form">
+          <input type="text" name="nom" placeholder="Nom" required />
+          <input type="text" name="prenom" placeholder="Prénom" required />
+          <input type="email" name="email" placeholder="Email" required />
+
+          <select name="type_visite" required>
+            <option value="" disabled selected>Type de visite</option>
+            <option value="personnel">Visite à un membre du personnel</option>
+            <option value="formation">Participation à une formation</option>
+          </select>
+
+          <!-- Ces champs peuvent être masqués/affichés dynamiquement -->
+          <input type="number" name="employe_id" placeholder="ID Employé" />
+          <input type="number" name="formation_id" placeholder="ID Formation" />
+
+          <button type="submit">Enregistrer l’entrée</button>
+        </form>
+      </section>
+    </main>
+
+    <script type="module" src="./js/main.js"></script>
+  </body>
+</html>
