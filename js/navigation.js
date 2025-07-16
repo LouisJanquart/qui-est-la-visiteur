@@ -1,15 +1,17 @@
+// navigation.js
 export let currentStep = 1;
-let history = [];
-
 export let currentAction = null;
 export let currentVisiteurId = null;
+
+const history = [];
 
 const BASE_URL =
   window.location.hostname === "localhost"
     ? "http://localhost:3000"
     : "https://qui-est-la-api.onrender.com";
 
-export function goToStep(step) {
+// 🔁 Navigation
+export const goToStep = (step) => {
   console.log(`🔁 goToStep(${step}) from step ${currentStep}`);
 
   if (step !== currentStep) {
@@ -22,25 +24,19 @@ export function goToStep(step) {
 
   currentStep = step;
   console.log("🧭 Historique :", [...history]);
-}
+};
 
-export function goBack() {
-  if (history.length === 0) return;
+export const goBack = () => {
+  const previous = history.pop();
+  if (previous != null) {
+    console.log(`⬅️ Retour vers l'étape ${previous}`);
+    goToStep(previous);
+  }
+};
 
-  const previousStep = history.pop();
-  console.log(`⬅️ Retour vers l'étape ${previousStep}`);
-
-  // Ne pas rajouter dans l’historique !
-  document.querySelectorAll(".step").forEach((section) => {
-    section.classList.toggle("hidden", +section.dataset.step !== previousStep);
-  });
-
-  currentStep = previousStep;
-  console.log("🧭 Historique :", [...history]);
-}
-
-export function resetWizard() {
-  history = [];
+export const resetWizard = () => {
+  history.length = 0;
+  currentStep = 1;
   currentAction = null;
   currentVisiteurId = null;
 
@@ -49,19 +45,17 @@ export function resetWizard() {
   });
 
   goToStep(1);
-}
+};
 
-export function setupNavigation() {
+// 🧭 Initialisation des événements de navigation
+export const setupNavigation = () => {
+  console.log("📦 Navigation initialisée");
+
   // Étape 1 : Choix Entrer / Sortir
   document.querySelectorAll("[data-action]").forEach((btn) => {
-    const action = btn.dataset.action;
     btn.addEventListener("click", () => {
-      currentAction = action;
-      if (action === "entrer") {
-        goToStep(2);
-      } else {
-        goToStep(3);
-      }
+      currentAction = btn.dataset.action;
+      goToStep(currentAction === "entrer" ? 2 : 3);
     });
   });
 
@@ -74,108 +68,90 @@ export function setupNavigation() {
     .querySelector('[data-deja-venu="non"]')
     ?.addEventListener("click", () => goToStep(5));
 
-  // Étape 3 : Identification par ID → bouton vers email
-  document.getElementById("btn-par-email")?.addEventListener("click", () => {
-    goToStep(4);
+  // Étape 3 : ID → Email
+  document
+    .getElementById("btn-par-email")
+    ?.addEventListener("click", () => goToStep(4));
+
+  // ID submit
+  const idForm = document.getElementById("id-form");
+  idForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const id = idForm.visiteur_id.value.trim();
+    if (!id) return alert("Veuillez entrer un ID valide.");
+
+    try {
+      const res = await fetch(`${BASE_URL}/api/visiteurs/${id}`);
+      const visiteur = await res.json();
+
+      if (!res.ok)
+        return alert(visiteur.error || "Erreur lors de la recherche.");
+
+      currentVisiteurId = visiteur.id;
+      document
+        .querySelectorAll('input[name="visiteur_id"]')
+        .forEach((el) => (el.value = visiteur.id));
+
+      if (currentAction === "entrer") {
+        document.querySelector(
+          'section[data-step="6"] input[name="nom"]'
+        ).value = visiteur.nom;
+        document.querySelector(
+          'section[data-step="6"] input[name="prenom"]'
+        ).value = visiteur.prenom;
+        document.querySelector(
+          'section[data-step="6"] input[name="email"]'
+        ).value = visiteur.email;
+        goToStep(5);
+      } else {
+        goToStep(8);
+      }
+    } catch (err) {
+      console.error("Erreur ID :", err);
+      alert("Erreur lors de la recherche.");
+    }
   });
 
-  const idForm = document.getElementById("id-form");
-  if (idForm) {
-    idForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const id = idForm.visiteur_id.value.trim();
-
-      if (!id) {
-        alert("Veuillez entrer un ID valide.");
-        return;
-      }
-
-      try {
-        const response = await fetch(`${BASE_URL}/api/visiteurs/${id}`);
-        const visiteur = await response.json();
-
-        if (!response.ok) {
-          alert(visiteur.error || "Erreur lors de la recherche.");
-          return;
-        }
-
-        currentVisiteurId = visiteur.id;
-
-        document.querySelectorAll('input[name="visiteur_id"]').forEach((el) => {
-          el.value = visiteur.id;
-        });
-
-        if (currentAction === "entrer" && currentStep !== 5) {
-          document.querySelector(
-            'section[data-step="6"] input[name="nom"]'
-          ).value = visiteur.nom;
-          document.querySelector(
-            'section[data-step="6"] input[name="prenom"]'
-          ).value = visiteur.prenom;
-          document.querySelector(
-            'section[data-step="6"] input[name="email"]'
-          ).value = visiteur.email;
-
-          goToStep(5);
-        } else if (currentAction === "sortir") {
-          goToStep(8);
-        }
-      } catch (err) {
-        console.error("Erreur lors de la recherche par ID :", err);
-        alert("Erreur lors de la recherche.");
-      }
-    });
-  }
-
-  // Étape 4 : Identification par email
+  // Étape 4 : Email submit
   const rechercheForm = document.getElementById("recherche-form");
-  if (rechercheForm) {
-    rechercheForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const email = e.target.email.value.trim();
+  rechercheForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = e.target.email.value.trim();
+    if (!email) return alert("Veuillez entrer un email.");
 
-      if (!email) {
-        alert("Veuillez entrer un email.");
-        return;
+    try {
+      const res = await fetch(
+        `${BASE_URL}/api/visiteurs/email/${encodeURIComponent(email)}`
+      );
+      const visiteur = await res.json();
+
+      if (!res.ok)
+        return alert(visiteur.error || "Erreur lors de la recherche.");
+
+      currentVisiteurId = visiteur.id;
+      document
+        .querySelectorAll('input[name="visiteur_id"]')
+        .forEach((el) => (el.value = visiteur.id));
+
+      if (currentAction === "entrer") {
+        document.querySelector(
+          'section[data-step="6"] input[name="nom"]'
+        ).value = visiteur.nom;
+        document.querySelector(
+          'section[data-step="6"] input[name="prenom"]'
+        ).value = visiteur.prenom;
+        document.querySelector(
+          'section[data-step="6"] input[name="email"]'
+        ).value = visiteur.email;
+        goToStep(5);
+      } else {
+        goToStep(8);
       }
-
-      try {
-        const response = await fetch(
-          `${BASE_URL}/api/visiteurs/email/${encodeURIComponent(email)}`
-        );
-        const visiteur = await response.json();
-
-        if (!response.ok) {
-          alert(visiteur.error || "Erreur lors de la recherche.");
-          return;
-        }
-
-        currentVisiteurId = visiteur.id;
-
-        document.querySelectorAll('input[name="visiteur_id"]').forEach((el) => {
-          el.value = visiteur.id;
-        });
-
-        if (currentAction === "entrer") {
-          document.querySelector(
-            'section[data-step="6"] input[name="nom"]'
-          ).value = visiteur.nom;
-          document.querySelector(
-            'section[data-step="6"] input[name="prenom"]'
-          ).value = visiteur.prenom;
-          document.querySelector(
-            'section[data-step="6"] input[name="email"]'
-          ).value = visiteur.email;
-          goToStep(5);
-        } else {
-          goToStep(8);
-        }
-      } catch (err) {
-        console.error("Erreur recherche email :", err);
-        alert("Erreur lors de la recherche.");
-      }
-    });
-  }
+    } catch (err) {
+      console.error("Erreur email :", err);
+      alert("Erreur lors de la recherche.");
+    }
+  });
 
   // Étape 5 : Choix du type de visite
   document
@@ -195,28 +171,4 @@ export function setupNavigation() {
       document.getElementById("employe-group").classList.add("hidden");
       goToStep(6);
     });
-
-  // Boutons ← Retour
-  document.querySelectorAll(".btn-retour").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      goBack();
-    });
-  });
-
-  // Boutons 🏠 Accueil
-  document.querySelectorAll(".btn-accueil").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      resetWizard();
-    });
-  });
-
-  document.getElementById("retour-accueil")?.addEventListener("click", () => {
-    resetWizard();
-  });
-
-  document.getElementById("retour-accueil-2")?.addEventListener("click", () => {
-    resetWizard();
-  });
-
-  console.log("📦 Navigation initialisée");
-}
+};
