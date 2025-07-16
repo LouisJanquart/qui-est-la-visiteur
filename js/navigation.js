@@ -16,9 +16,12 @@ const BASE_URL =
     : "https://qui-est-la-api.onrender.com";
 
 // 🔁 Navigation
+let isNavigatingBack = false;
+
 export const goToStep = (step) => {
   console.log(`🔁 goToStep(${step}) from step ${currentStep}`);
-  if (step !== currentStep) {
+
+  if (!isNavigatingBack && step !== currentStep) {
     history.push(currentStep);
   }
 
@@ -34,7 +37,9 @@ export const goBack = () => {
   const previous = history.pop();
   if (previous != null) {
     console.log(`⬅️ Retour vers l'étape ${previous}`);
+    isNavigatingBack = true;
     goToStep(previous);
+    isNavigatingBack = false;
   }
 };
 
