@@ -1,6 +1,11 @@
 export let currentStep = 1;
 let history = [];
 
+const BASE_URL =
+  window.location.hostname === "localhost"
+    ? "http://localhost:3000"
+    : "https://qui-est-la-api.onrender.com";
+
 export let currentAction = null; // "entrer" ou "sortir"
 export let currentVisiteurId = null;
 
@@ -71,9 +76,7 @@ export function setupNavigation() {
       }
 
       try {
-        const response = await fetch(
-          `http://localhost:3000/api/visiteurs/${id}`
-        );
+        const response = await fetch(`${BASE_URL}/api/visiteurs/${id}`);
         const visiteur = await response.json();
 
         if (!response.ok) {
@@ -125,9 +128,7 @@ export function setupNavigation() {
 
       try {
         const response = await fetch(
-          `http://localhost:3000/api/visiteurs/email/${encodeURIComponent(
-            email
-          )}`
+          `${BASE_URL}/api/visiteurs/email/${encodeURIComponent(email)}`
         );
 
         const visiteur = await response.json();

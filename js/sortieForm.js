@@ -1,5 +1,10 @@
 import { goToStep } from "./navigation.js";
 
+const BASE_URL =
+  window.location.hostname === "localhost"
+    ? "http://localhost:3000"
+    : "https://qui-est-la-api.onrender.com";
+
 export function setupSortieForm() {
   const form = document.getElementById("sortie-form");
   if (!form) return;
@@ -11,7 +16,7 @@ export function setupSortieForm() {
     const data = Object.fromEntries(formData.entries());
 
     try {
-      const response = await fetch("http://localhost:3000/api/visites/sortie", {
+      const response = await fetch(`${BASE_URL}/api/visites/sortie`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
