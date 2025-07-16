@@ -1,26 +1,18 @@
 export let currentStep = 1;
 let history = [];
-let isGoingBack = false;
+
+export let currentAction = null;
+export let currentVisiteurId = null;
 
 const BASE_URL =
   window.location.hostname === "localhost"
     ? "http://localhost:3000"
     : "https://qui-est-la-api.onrender.com";
 
-export let currentAction = null; // "entrer" ou "sortir"
-export let currentVisiteurId = null;
-
-export function goToStep(step, options = { skipHistory: false }) {
+// Aller à une étape
+export function goToStep(step) {
   console.log(`🔁 goToStep(${step}) from step ${currentStep}`);
-
-  if (!isGoingBack && !options.skipHistory && step !== currentStep) {
-    const last = history[history.length - 1];
-    if (last !== currentStep) {
-      history.push(currentStep);
-    }
-  }
-
-  if (step === currentStep) return;
+  history.push(currentStep); // On garde une trace du précédent
 
   document.querySelectorAll(".step").forEach((section) => {
     section.classList.toggle("hidden", +section.dataset.step !== step);
@@ -30,22 +22,20 @@ export function goToStep(step, options = { skipHistory: false }) {
   console.log("🧭 Historique :", [...history]);
 }
 
+// Retour à l'étape précédente
 export function goBack() {
+  if (history.length === 0) return;
   const prev = history.pop();
-  if (prev != null) {
-    console.log(`⬅️ Retour vers l'étape ${prev}`);
-    isGoingBack = true;
-    goToStep(prev, { skipHistory: true });
-    isGoingBack = false;
-  }
+  console.log(`⬅️ Retour vers l'étape ${prev}`);
+  goToStep(prev);
 }
 
+// Réinitialisation complète
 export function resetWizard() {
   history = [];
   currentAction = null;
   currentVisiteurId = null;
 
-  // Nettoyer les champs visiteur_id dans les formulaires
   document.querySelectorAll('input[name="visiteur_id"]').forEach((input) => {
     input.value = "";
   });
