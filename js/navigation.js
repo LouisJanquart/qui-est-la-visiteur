@@ -12,7 +12,6 @@ export let currentVisiteurId = null;
 export function goToStep(step, options = { skipHistory: false }) {
   console.log(`🔁 goToStep(${step}) from step ${currentStep}`);
 
-  // Empêche les doublons consécutifs dans l'historique
   if (!options.skipHistory && step !== currentStep) {
     const last = history[history.length - 1];
     if (last !== currentStep) {
@@ -20,15 +19,21 @@ export function goToStep(step, options = { skipHistory: false }) {
     }
   }
 
+  // Toujours éviter d'empiler deux fois la même étape
+  if (step === currentStep) return;
+
   document.querySelectorAll(".step").forEach((section) => {
     section.classList.toggle("hidden", +section.dataset.step !== step);
   });
+
   currentStep = step;
+  console.log("🧭 Historique :", [...history]);
 }
 
 export function goBack() {
   const prev = history.pop();
   if (prev != null) {
+    console.log(`⬅️ Retour vers l'étape ${prev}`);
     goToStep(prev, { skipHistory: true });
   }
 }
