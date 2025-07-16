@@ -1,5 +1,6 @@
 import { goToStep } from "./navigation.js";
 import { enregistrerSortie } from "./api.js";
+import { afficherConfirmationSortie } from "./ui.js";
 
 export const setupSortieForm = () => {
   const form = document.getElementById("sortie-form-auto");
@@ -7,23 +8,18 @@ export const setupSortieForm = () => {
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-
-    const formData = new FormData(form);
-    const data = Object.fromEntries(formData.entries());
+    const data = Object.fromEntries(new FormData(form));
 
     console.log("🔍 Données envoyées pour la sortie :", data);
 
     try {
       await enregistrerSortie(data);
-
-      document.getElementById("confirmation-message").textContent =
-        "Sortie enregistrée. Merci de votre visite.";
-
+      afficherConfirmationSortie();
       form.reset();
       goToStep(7);
-    } catch (err) {
-      console.error("Erreur :", err);
-      alert(err.message || "Erreur lors de la sortie.");
+    } catch (error) {
+      console.error("Erreur :", error);
+      alert(error.message);
     }
   });
 };

@@ -1,32 +1,31 @@
 import {
   currentStep,
   currentAction,
-  currentVisiteurId,
   setStep,
   setAction,
   setVisiteurId,
   resetState,
 } from "./state.js";
 import { fetchVisiteurById, fetchVisiteurByEmail } from "./api.js";
+import {
+  afficherEtape,
+  preRemplirInfosVisiteur,
+  injecterIdVisiteur,
+  afficherEmployeGroup,
+  afficherFormationGroup,
+} from "./ui.js";
 
 const history = [];
-
-// 🔁 Navigation
 let isNavigatingBack = false;
 
 export const goToStep = (step) => {
   console.log(`🔁 goToStep(${step}) from step ${currentStep}`);
-
   if (!isNavigatingBack && step !== currentStep) {
     history.push(currentStep);
   }
-
-  document.querySelectorAll(".step").forEach((section) => {
-    section.classList.toggle("hidden", +section.dataset.step !== step);
-  });
-
+  afficherEtape(step);
   setStep(step);
-  console.log("🧭 Historique :", [...history]);
+  console.log("🗭️ Historique :", [...history]);
 };
 
 export const goBack = () => {
@@ -42,19 +41,13 @@ export const goBack = () => {
 export const resetWizard = () => {
   history.length = 0;
   resetState();
-
-  document.querySelectorAll('input[name="visiteur_id"]').forEach((input) => {
-    input.value = "";
-  });
-
+  injecterIdVisiteur("");
   goToStep(1);
 };
 
-// 🧭 Initialisation des événements de navigation
 export const setupNavigation = () => {
   console.log("📦 Navigation initialisée");
 
-  // Étape 1 : Choix Entrer / Sortir
   document.querySelectorAll("[data-action]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const action = btn.dataset.action;
@@ -63,7 +56,6 @@ export const setupNavigation = () => {
     });
   });
 
-  // Étape 2 : Déjà venu ?
   document
     .querySelector('[data-deja-venu="oui"]')
     ?.addEventListener("click", () => goToStep(3));
@@ -72,7 +64,6 @@ export const setupNavigation = () => {
     .querySelector('[data-deja-venu="non"]')
     ?.addEventListener("click", () => goToStep(5));
 
-  // Étape 3 : Saisie ID
   document
     .getElementById("btn-par-email")
     ?.addEventListener("click", () => goToStep(4));
@@ -86,21 +77,10 @@ export const setupNavigation = () => {
     try {
       const visiteur = await fetchVisiteurById(id);
       setVisiteurId(visiteur.id);
-
-      document
-        .querySelectorAll('input[name="visiteur_id"]')
-        .forEach((el) => (el.value = visiteur.id));
+      injecterIdVisiteur(visiteur.id);
 
       if (currentAction === "entrer") {
-        document.querySelector(
-          'section[data-step="6"] input[name="nom"]'
-        ).value = visiteur.nom;
-        document.querySelector(
-          'section[data-step="6"] input[name="prenom"]'
-        ).value = visiteur.prenom;
-        document.querySelector(
-          'section[data-step="6"] input[name="email"]'
-        ).value = visiteur.email;
+        preRemplirInfosVisiteur(visiteur);
         goToStep(5);
       } else {
         goToStep(8);
@@ -111,7 +91,6 @@ export const setupNavigation = () => {
     }
   });
 
-  // Étape 4 : Saisie par email
   const rechercheForm = document.getElementById("recherche-form");
   rechercheForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -121,21 +100,10 @@ export const setupNavigation = () => {
     try {
       const visiteur = await fetchVisiteurByEmail(email);
       setVisiteurId(visiteur.id);
-
-      document
-        .querySelectorAll('input[name="visiteur_id"]')
-        .forEach((el) => (el.value = visiteur.id));
+      injecterIdVisiteur(visiteur.id);
 
       if (currentAction === "entrer") {
-        document.querySelector(
-          'section[data-step="6"] input[name="nom"]'
-        ).value = visiteur.nom;
-        document.querySelector(
-          'section[data-step="6"] input[name="prenom"]'
-        ).value = visiteur.prenom;
-        document.querySelector(
-          'section[data-step="6"] input[name="email"]'
-        ).value = visiteur.email;
+        preRemplirInfosVisiteur(visiteur);
         goToStep(5);
       } else {
         goToStep(8);
@@ -146,13 +114,11 @@ export const setupNavigation = () => {
     }
   });
 
-  // Étape 5 : Choix du type de visite
   document
     .querySelector('[data-type="personnel"]')
     ?.addEventListener("click", () => {
       document.getElementById("type_visite").value = "personnel";
-      document.getElementById("employe-group").classList.remove("hidden");
-      document.getElementById("formation-group").classList.add("hidden");
+      afficherEmployeGroup();
       goToStep(6);
     });
 
@@ -160,8 +126,7 @@ export const setupNavigation = () => {
     .querySelector('[data-type="formation"]')
     ?.addEventListener("click", () => {
       document.getElementById("type_visite").value = "formation";
-      document.getElementById("formation-group").classList.remove("hidden");
-      document.getElementById("employe-group").classList.add("hidden");
+      afficherFormationGroup();
       goToStep(6);
     });
 };
