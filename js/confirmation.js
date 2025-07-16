@@ -1,10 +1,14 @@
-import { goToStep } from "./navigation.js";
+import { resetWizard } from "./navigation.js";
 
-export function setupRetourAccueil() {
-  const btn = document.getElementById("retour-accueil");
-  if (btn) {
-    btn.addEventListener("click", () => {
-      goToStep(1);
-    });
-  }
-}
+export const setupRetourAccueil = () => {
+  const boutonsRetour = [
+    document.getElementById("retour-accueil"),
+    document.getElementById("retour-accueil-2"),
+  ];
+
+  boutonsRetour.forEach((btn) => {
+    if (btn) {
+      btn.addEventListener("click", resetWizard);
+    }
+  });
+};

@@ -1,7 +1,12 @@
-// navigation.js
-export let currentStep = 1;
-export let currentAction = null;
-export let currentVisiteurId = null;
+import {
+  currentStep,
+  currentAction,
+  currentVisiteurId,
+  setStep,
+  setAction,
+  setVisiteurId,
+  resetState,
+} from "./state.js";
 
 const history = [];
 
@@ -13,7 +18,6 @@ const BASE_URL =
 // 🔁 Navigation
 export const goToStep = (step) => {
   console.log(`🔁 goToStep(${step}) from step ${currentStep}`);
-
   if (step !== currentStep) {
     history.push(currentStep);
   }
@@ -22,7 +26,7 @@ export const goToStep = (step) => {
     section.classList.toggle("hidden", +section.dataset.step !== step);
   });
 
-  currentStep = step;
+  setStep(step);
   console.log("🧭 Historique :", [...history]);
 };
 
@@ -36,9 +40,7 @@ export const goBack = () => {
 
 export const resetWizard = () => {
   history.length = 0;
-  currentStep = 1;
-  currentAction = null;
-  currentVisiteurId = null;
+  resetState();
 
   document.querySelectorAll('input[name="visiteur_id"]').forEach((input) => {
     input.value = "";
@@ -54,8 +56,9 @@ export const setupNavigation = () => {
   // Étape 1 : Choix Entrer / Sortir
   document.querySelectorAll("[data-action]").forEach((btn) => {
     btn.addEventListener("click", () => {
-      currentAction = btn.dataset.action;
-      goToStep(currentAction === "entrer" ? 2 : 3);
+      const action = btn.dataset.action;
+      setAction(action);
+      goToStep(action === "entrer" ? 2 : 3);
     });
   });
 
@@ -83,25 +86,19 @@ export const setupNavigation = () => {
     try {
       const res = await fetch(`${BASE_URL}/api/visiteurs/${id}`);
       const visiteur = await res.json();
-
       if (!res.ok)
         return alert(visiteur.error || "Erreur lors de la recherche.");
 
-      currentVisiteurId = visiteur.id;
+      setVisiteurId(visiteur.id);
       document
         .querySelectorAll('input[name="visiteur_id"]')
         .forEach((el) => (el.value = visiteur.id));
 
       if (currentAction === "entrer") {
-        document.querySelector(
-          'section[data-step="6"] input[name="nom"]'
-        ).value = visiteur.nom;
-        document.querySelector(
-          'section[data-step="6"] input[name="prenom"]'
-        ).value = visiteur.prenom;
-        document.querySelector(
-          'section[data-step="6"] input[name="email"]'
-        ).value = visiteur.email;
+        const form = document.querySelector('section[data-step="6"]');
+        form.querySelector('input[name="nom"]').value = visiteur.nom;
+        form.querySelector('input[name="prenom"]').value = visiteur.prenom;
+        form.querySelector('input[name="email"]').value = visiteur.email;
         goToStep(5);
       } else {
         goToStep(8);
@@ -124,25 +121,19 @@ export const setupNavigation = () => {
         `${BASE_URL}/api/visiteurs/email/${encodeURIComponent(email)}`
       );
       const visiteur = await res.json();
-
       if (!res.ok)
         return alert(visiteur.error || "Erreur lors de la recherche.");
 
-      currentVisiteurId = visiteur.id;
+      setVisiteurId(visiteur.id);
       document
         .querySelectorAll('input[name="visiteur_id"]')
         .forEach((el) => (el.value = visiteur.id));
 
       if (currentAction === "entrer") {
-        document.querySelector(
-          'section[data-step="6"] input[name="nom"]'
-        ).value = visiteur.nom;
-        document.querySelector(
-          'section[data-step="6"] input[name="prenom"]'
-        ).value = visiteur.prenom;
-        document.querySelector(
-          'section[data-step="6"] input[name="email"]'
-        ).value = visiteur.email;
+        const form = document.querySelector('section[data-step="6"]');
+        form.querySelector('input[name="nom"]').value = visiteur.nom;
+        form.querySelector('input[name="prenom"]').value = visiteur.prenom;
+        form.querySelector('input[name="email"]').value = visiteur.email;
         goToStep(5);
       } else {
         goToStep(8);
