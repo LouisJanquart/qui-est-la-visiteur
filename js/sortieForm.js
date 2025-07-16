@@ -6,7 +6,7 @@ const BASE_URL =
     : "https://qui-est-la-api.onrender.com";
 
 export const setupSortieForm = () => {
-  const form = document.getElementById("sortie-form-auto");
+  const form = document.getElementById("sortie-form");
   if (!form) return;
 
   form.addEventListener("submit", async (e) => {
