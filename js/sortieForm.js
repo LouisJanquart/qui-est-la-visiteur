@@ -14,6 +14,8 @@ export const setupSortieForm = () => {
 
     const data = Object.fromEntries(new FormData(form));
 
+    console.log("🔍 Données envoyées pour la sortie :", data);
+
     try {
       const res = await fetch(`${BASE_URL}/api/visites/sortie`, {
         method: "POST",
