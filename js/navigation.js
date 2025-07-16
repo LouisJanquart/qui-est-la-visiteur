@@ -7,13 +7,9 @@ import {
   setVisiteurId,
   resetState,
 } from "./state.js";
+import { fetchVisiteurById, fetchVisiteurByEmail } from "./api.js";
 
 const history = [];
-
-const BASE_URL =
-  window.location.hostname === "localhost"
-    ? "http://localhost:3000"
-    : "https://qui-est-la-api.onrender.com";
 
 // 🔁 Navigation
 let isNavigatingBack = false;
@@ -76,12 +72,11 @@ export const setupNavigation = () => {
     .querySelector('[data-deja-venu="non"]')
     ?.addEventListener("click", () => goToStep(5));
 
-  // Étape 3 : ID → Email
+  // Étape 3 : Saisie ID
   document
     .getElementById("btn-par-email")
     ?.addEventListener("click", () => goToStep(4));
 
-  // ID submit
   const idForm = document.getElementById("id-form");
   idForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -89,32 +84,34 @@ export const setupNavigation = () => {
     if (!id) return alert("Veuillez entrer un ID valide.");
 
     try {
-      const res = await fetch(`${BASE_URL}/api/visiteurs/${id}`);
-      const visiteur = await res.json();
-      if (!res.ok)
-        return alert(visiteur.error || "Erreur lors de la recherche.");
-
+      const visiteur = await fetchVisiteurById(id);
       setVisiteurId(visiteur.id);
+
       document
         .querySelectorAll('input[name="visiteur_id"]')
         .forEach((el) => (el.value = visiteur.id));
 
       if (currentAction === "entrer") {
-        const form = document.querySelector('section[data-step="6"]');
-        form.querySelector('input[name="nom"]').value = visiteur.nom;
-        form.querySelector('input[name="prenom"]').value = visiteur.prenom;
-        form.querySelector('input[name="email"]').value = visiteur.email;
+        document.querySelector(
+          'section[data-step="6"] input[name="nom"]'
+        ).value = visiteur.nom;
+        document.querySelector(
+          'section[data-step="6"] input[name="prenom"]'
+        ).value = visiteur.prenom;
+        document.querySelector(
+          'section[data-step="6"] input[name="email"]'
+        ).value = visiteur.email;
         goToStep(5);
       } else {
         goToStep(8);
       }
     } catch (err) {
       console.error("Erreur ID :", err);
-      alert("Erreur lors de la recherche.");
+      alert(err.message);
     }
   });
 
-  // Étape 4 : Email submit
+  // Étape 4 : Saisie par email
   const rechercheForm = document.getElementById("recherche-form");
   rechercheForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -122,30 +119,30 @@ export const setupNavigation = () => {
     if (!email) return alert("Veuillez entrer un email.");
 
     try {
-      const res = await fetch(
-        `${BASE_URL}/api/visiteurs/email/${encodeURIComponent(email)}`
-      );
-      const visiteur = await res.json();
-      if (!res.ok)
-        return alert(visiteur.error || "Erreur lors de la recherche.");
-
+      const visiteur = await fetchVisiteurByEmail(email);
       setVisiteurId(visiteur.id);
+
       document
         .querySelectorAll('input[name="visiteur_id"]')
         .forEach((el) => (el.value = visiteur.id));
 
       if (currentAction === "entrer") {
-        const form = document.querySelector('section[data-step="6"]');
-        form.querySelector('input[name="nom"]').value = visiteur.nom;
-        form.querySelector('input[name="prenom"]').value = visiteur.prenom;
-        form.querySelector('input[name="email"]').value = visiteur.email;
+        document.querySelector(
+          'section[data-step="6"] input[name="nom"]'
+        ).value = visiteur.nom;
+        document.querySelector(
+          'section[data-step="6"] input[name="prenom"]'
+        ).value = visiteur.prenom;
+        document.querySelector(
+          'section[data-step="6"] input[name="email"]'
+        ).value = visiteur.email;
         goToStep(5);
       } else {
         goToStep(8);
       }
     } catch (err) {
       console.error("Erreur email :", err);
-      alert("Erreur lors de la recherche.");
+      alert(err.message);
     }
   });
 
