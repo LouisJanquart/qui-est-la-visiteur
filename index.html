@@ -88,20 +88,14 @@
           <input type="text" name="prenom" placeholder="Prénom" required />
           <input type="email" name="email" placeholder="Email" required />
 
+          <!-- Groupe personnel -->
           <div id="employe-group" class="option-group hidden">
-            <input
-              type="number"
-              name="employe_id"
-              placeholder="ID du personnel"
-            />
+            <select name="employe_id" required></select>
           </div>
 
+          <!-- Groupe formation -->
           <div id="formation-group" class="option-group hidden">
-            <input
-              type="number"
-              name="formation_id"
-              placeholder="ID de la formation"
-            />
+            <select name="formation_id" required></select>
           </div>
 
           <input type="hidden" name="type_visite" id="type_visite" />

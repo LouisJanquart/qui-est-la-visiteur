@@ -44,3 +44,19 @@ export const enregistrerSortie = async (data) => {
   if (!res.ok) throw new Error(result.error || "Erreur lors de la sortie.");
   return result;
 };
+
+// 📚 Récupérer toutes les formations
+export const fetchFormations = async () => {
+  const res = await fetch(`${BASE_URL}/api/formations`);
+  const result = await res.json();
+  if (!res.ok) throw new Error(result.error || "Erreur formations");
+  return result;
+};
+
+// 👥 Récupérer tout le personnel
+export const fetchEmployes = async () => {
+  const res = await fetch(`${BASE_URL}/api/employes`);
+  const result = await res.json();
+  if (!res.ok) throw new Error(result.error || "Erreur personnel");
+  return result;
+};
