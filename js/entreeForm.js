@@ -42,12 +42,30 @@ export const setupEntreeForm = async () => {
   document
     .querySelector('[data-type="formation"]')
     ?.addEventListener("click", () => {
+      // Affiche le bon groupe
+      document.getElementById("formation-group").classList.remove("hidden");
+      document.getElementById("employe-group").classList.add("hidden");
+
+      // Met à jour les attributs required
+      formationSelect.required = true;
+      employeSelect.required = false;
+
+      // Remplit les options
       remplirSelect(formationSelect, formations, (f) => f.intitule);
     });
 
   document
     .querySelector('[data-type="personnel"]')
     ?.addEventListener("click", () => {
+      // Affiche le bon groupe
+      document.getElementById("employe-group").classList.remove("hidden");
+      document.getElementById("formation-group").classList.add("hidden");
+
+      // Met à jour les attributs required
+      employeSelect.required = true;
+      formationSelect.required = false;
+
+      // Remplit les options
       remplirSelect(
         employeSelect,
         employes,
