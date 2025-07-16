@@ -1,5 +1,6 @@
 export let currentStep = 1;
 let history = [];
+let isGoingBack = false;
 
 const BASE_URL =
   window.location.hostname === "localhost"
@@ -12,14 +13,13 @@ export let currentVisiteurId = null;
 export function goToStep(step, options = { skipHistory: false }) {
   console.log(`🔁 goToStep(${step}) from step ${currentStep}`);
 
-  if (!options.skipHistory && step !== currentStep) {
+  if (!isGoingBack && !options.skipHistory && step !== currentStep) {
     const last = history[history.length - 1];
     if (last !== currentStep) {
       history.push(currentStep);
     }
   }
 
-  // Toujours éviter d'empiler deux fois la même étape
   if (step === currentStep) return;
 
   document.querySelectorAll(".step").forEach((section) => {
@@ -34,7 +34,9 @@ export function goBack() {
   const prev = history.pop();
   if (prev != null) {
     console.log(`⬅️ Retour vers l'étape ${prev}`);
+    isGoingBack = true;
     goToStep(prev, { skipHistory: true });
+    isGoingBack = false;
   }
 }
 
