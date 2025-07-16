@@ -5,36 +5,37 @@ const BASE_URL =
     ? "http://localhost:3000"
     : "https://qui-est-la-api.onrender.com";
 
-export function setupSortieForm() {
+export const setupSortieForm = () => {
   const form = document.getElementById("sortie-form");
   if (!form) return;
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const formData = new FormData(form);
-    const data = Object.fromEntries(formData.entries());
+    const data = Object.fromEntries(new FormData(form));
 
     try {
-      const response = await fetch(`${BASE_URL}/api/visites/sortie`, {
+      const res = await fetch(`${BASE_URL}/api/visites/sortie`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
 
-      const result = await response.json();
+      const result = await res.json();
 
-      if (response.ok) {
-        document.getElementById("confirmation-message").textContent =
-          "Sortie enregistrée. Merci de votre visite.";
-        form.reset();
-        goToStep(7);
-      } else {
+      if (!res.ok) {
         alert("Erreur : " + result.error);
+        return;
       }
-    } catch (error) {
-      console.error("Erreur :", error);
+
+      document.getElementById("confirmation-message").textContent =
+        "Sortie enregistrée. Merci de votre visite.";
+
+      form.reset();
+      goToStep(7);
+    } catch (err) {
+      console.error("Erreur :", err);
       alert("Erreur lors de la sortie.");
     }
   });
-}
+};
