@@ -27,11 +27,6 @@ export function goBack() {
   }
 }
 
-export function goBack() {
-  const prev = history.pop();
-  if (prev) goToStep(prev);
-}
-
 export function resetWizard() {
   history = [];
   currentAction = null;
