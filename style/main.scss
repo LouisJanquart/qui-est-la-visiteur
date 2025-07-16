@@ -112,11 +112,6 @@ form {
     font-family: sans-serif;
   }
 
-  main {
-    padding: 0;
-  }
-
-  /* N'affiche que l'étiquette */
   body * {
     visibility: hidden;
   }
@@ -131,10 +126,27 @@ form {
     top: 0;
     left: 0;
     width: 100%;
-    padding: 1rem;
+    padding: 0;
+    margin: 0;
+    border: none;
   }
 
-  /* Supprime les marges inutiles */
+  #etiquette .carte-etiquette {
+    border: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  #etiquette h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  #etiquette p {
+    margin: 0.2rem 0;
+    font-size: 1rem;
+  }
+
   @page {
     margin: 1cm;
   }
