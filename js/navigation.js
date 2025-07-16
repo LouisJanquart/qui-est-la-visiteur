@@ -9,10 +9,10 @@ const BASE_URL =
     ? "http://localhost:3000"
     : "https://qui-est-la-api.onrender.com";
 
-export function goToStep(step, skipHistory = false) {
+export function goToStep(step) {
   console.log(`🔁 goToStep(${step}) from step ${currentStep}`);
 
-  if (!skipHistory && step !== currentStep) {
+  if (step !== currentStep) {
     history.push(currentStep);
   }
 
@@ -25,11 +25,18 @@ export function goToStep(step, skipHistory = false) {
 }
 
 export function goBack() {
-  const prev = history.pop();
-  if (prev != null) {
-    console.log(`⬅️ Retour vers l'étape ${prev}`);
-    goToStep(prev, true); // skipHistory = true pour ne pas ajouter l'étape actuelle
-  }
+  if (history.length === 0) return;
+
+  const previousStep = history.pop();
+  console.log(`⬅️ Retour vers l'étape ${previousStep}`);
+
+  // Ne pas rajouter dans l’historique !
+  document.querySelectorAll(".step").forEach((section) => {
+    section.classList.toggle("hidden", +section.dataset.step !== previousStep);
+  });
+
+  currentStep = previousStep;
+  console.log("🧭 Historique :", [...history]);
 }
 
 export function resetWizard() {
