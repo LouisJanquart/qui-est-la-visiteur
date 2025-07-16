@@ -11,9 +11,15 @@ export let currentVisiteurId = null;
 
 export function goToStep(step, options = { skipHistory: false }) {
   console.log(`🔁 goToStep(${step}) from step ${currentStep}`);
+
+  // Empêche les doublons consécutifs dans l'historique
   if (!options.skipHistory && step !== currentStep) {
-    history.push(currentStep);
+    const last = history[history.length - 1];
+    if (last !== currentStep) {
+      history.push(currentStep);
+    }
   }
+
   document.querySelectorAll(".step").forEach((section) => {
     section.classList.toggle("hidden", +section.dataset.step !== step);
   });
@@ -22,8 +28,8 @@ export function goToStep(step, options = { skipHistory: false }) {
 
 export function goBack() {
   const prev = history.pop();
-  if (prev) {
-    goToStep(prev, { skipHistory: true }); // éviter d'empiler les retours
+  if (prev != null) {
+    goToStep(prev, { skipHistory: true });
   }
 }
 
