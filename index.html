@@ -8,14 +8,14 @@
   </head>
   <body>
     <main>
-      <!-- ÉTAPE 1 : Choix de l'action -->
+      <!-- ÉTAPE 1 : Choix Entrer / Sortir -->
       <section class="step" data-step="1">
         <h2>Bienvenue ! Que voulez-vous faire ?</h2>
         <button data-action="entrer">Entrer</button>
         <button data-action="sortir">Sortir</button>
       </section>
 
-      <!-- ÉTAPE 2 : Déjà venu ? (uniquement si entrer ou revenir) -->
+      <!-- ÉTAPE 2 : Déjà venu ? -->
       <section class="step hidden" data-step="2">
         <div class="nav-top">
           <button class="btn-retour">← Retour</button>
@@ -26,25 +26,64 @@
         <button data-deja-venu="non">Non</button>
       </section>
 
-      <!-- ÉTAPE 3 : Choix du type de visite -->
+      <!-- ÉTAPE 3 : Identification par ID -->
       <section class="step hidden" data-step="3">
         <div class="nav-top">
           <button class="btn-retour">← Retour</button>
           <button class="btn-accueil">🏠 Accueil</button>
         </div>
-        <h2>Quel est le motif de votre venue ?</h2>
-        <button data-type="personnel">Membre du personnel</button>
-        <button data-type="formation">Formation</button>
+        <h2>Identifiez-vous</h2>
+        <form id="id-form">
+          <input
+            type="number"
+            name="visiteur_id"
+            placeholder="Votre ID visiteur"
+            required
+          />
+          <button type="submit">Continuer</button>
+        </form>
+        <p>Vous n’avez pas votre ID ?</p>
+        <button id="btn-par-email">Rechercher par email</button>
       </section>
 
-      <!-- ÉTAPE 4 : Formulaire visiteur -->
+      <!-- ÉTAPE 4 : Identification par email -->
       <section class="step hidden" data-step="4">
+        <div class="nav-top">
+          <button class="btn-retour">← Retour</button>
+          <button class="btn-accueil">🏠 Accueil</button>
+        </div>
+        <h2>Recherche par email</h2>
+        <form id="recherche-form">
+          <input
+            type="email"
+            name="email"
+            placeholder="Votre adresse email"
+            required
+          />
+          <button type="submit">Rechercher</button>
+        </form>
+      </section>
+
+      <!-- ÉTAPE 5 : Choix du type de visite -->
+      <section class="step hidden" data-step="5">
+        <div class="nav-top">
+          <button class="btn-retour">← Retour</button>
+          <button class="btn-accueil">🏠 Accueil</button>
+        </div>
+        <h2>Quel est le motif de votre venue ?</h2>
+        <button type="button" data-type="personnel">Membre du personnel</button>
+        <button type="button" data-type="formation">Formation</button>
+      </section>
+
+      <!-- ÉTAPE 6 : Formulaire de saisie visiteur -->
+      <section class="step hidden" data-step="6">
         <div class="nav-top">
           <button class="btn-retour">← Retour</button>
           <button class="btn-accueil">🏠 Accueil</button>
         </div>
         <h2>Vos informations</h2>
         <form id="entree-form">
+          <input type="hidden" name="visiteur_id" />
           <input type="text" name="nom" placeholder="Nom" required />
           <input type="text" name="prenom" placeholder="Prénom" required />
           <input type="email" name="email" placeholder="Email" required />
@@ -71,49 +110,23 @@
         </form>
       </section>
 
-      <!-- ÉTAPE 5 : Formulaire de sortie -->
-      <section class="step hidden" data-step="5">
-        <div class="nav-top">
-          <button class="btn-retour">← Retour</button>
-          <button class="btn-accueil">🏠 Accueil</button>
-        </div>
-        <h2>Sortie du bâtiment</h2>
-        <form id="sortie-form">
-          <input
-            type="number"
-            name="visiteur_id"
-            placeholder="ID du visiteur"
-            required
-          />
-          <button type="submit">Enregistrer la sortie</button>
-        </form>
-      </section>
-
-      <!-- ÉTAPE 6 : Recherche par email (pour retour sans ID) -->
-      <section class="step hidden" data-step="6">
-        <div class="nav-top">
-          <button class="btn-retour">← Retour</button>
-          <button class="btn-accueil">🏠 Accueil</button>
-        </div>
-        <h2>Recherche par email</h2>
-        <form id="recherche-form">
-          <input
-            type="email"
-            name="email"
-            placeholder="Votre adresse email"
-            required
-          />
-          <button type="submit">Rechercher</button>
-        </form>
-      </section>
-
-      <!-- ÉTAPE 7 : Confirmation ou récapitulatif -->
+      <!-- ÉTAPE 7 : Confirmation d’entrée -->
       <section class="step hidden" data-step="7" id="confirmation">
         <h2>Merci !</h2>
         <div id="etiquette">
-          <!-- Les infos du visiteur s'affichent ici -->
+          <!-- Infos visiteur affichées ici -->
         </div>
         <button id="retour-accueil">Revenir à l'accueil</button>
+      </section>
+
+      <!-- ÉTAPE 8 : Confirmation de sortie -->
+      <section class="step hidden" data-step="8" id="sortie-confirmation">
+        <h2>Merci de votre visite !</h2>
+        <form id="sortie-form-auto">
+          <input type="hidden" name="visiteur_id" />
+          <button type="submit">Confirmer la sortie</button>
+        </form>
+        <button id="retour-accueil-2">Revenir à l'accueil</button>
       </section>
     </main>
 

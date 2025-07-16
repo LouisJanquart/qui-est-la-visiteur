@@ -1,7 +1,11 @@
 export let currentStep = 1;
 let history = [];
 
+export let currentAction = null; // "entrer" ou "sortir"
+export let currentVisiteurId = null;
+
 export function goToStep(step) {
+  console.log(`🔁 goToStep(${step}) from step ${currentStep}`);
   if (step !== currentStep) history.push(currentStep);
   document.querySelectorAll(".step").forEach((section) => {
     section.classList.toggle("hidden", +section.dataset.step !== step);
@@ -16,45 +20,192 @@ export function goBack() {
 
 export function resetWizard() {
   history = [];
+  currentAction = null;
+  currentVisiteurId = null;
+
+  // Nettoyer les champs visiteur_id dans les formulaires
+  document.querySelectorAll('input[name="visiteur_id"]').forEach((input) => {
+    input.value = "";
+  });
+
   goToStep(1);
 }
 
-// Navigation initiale
 export function setupNavigation() {
-  const actions = {
-    entrer: () => goToStep(2),
-    sortir: () => goToStep(5),
-  };
-
+  // Étape 1 : Choix Entrer / Sortir
   document.querySelectorAll("[data-action]").forEach((btn) => {
+    const action = btn.dataset.action;
     btn.addEventListener("click", () => {
-      const action = btn.dataset.action;
-      if (actions[action]) actions[action]();
+      currentAction = action;
+      if (action === "entrer") {
+        goToStep(2); // demande si déjà venu
+      } else {
+        goToStep(3); // identification directe pour sortir
+      }
     });
   });
 
+  // Étape 2 : Déjà venu ?
   document
     .querySelector('[data-deja-venu="oui"]')
-    ?.addEventListener("click", () => goToStep(6));
-  document
-    .querySelector('[data-deja-venu="non"]')
-    ?.addEventListener("click", () => goToStep(3));
+    ?.addEventListener("click", () => goToStep(3)); // ID ou email
 
   document
+    .querySelector('[data-deja-venu="non"]')
+    ?.addEventListener("click", () => goToStep(5)); // type de visite
+
+  // Étape 3 : Identification par ID → bouton vers email
+  document.getElementById("btn-par-email")?.addEventListener("click", () => {
+    goToStep(4);
+  });
+
+  const idForm = document.getElementById("id-form");
+  if (idForm) {
+    idForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = idForm.visiteur_id.value.trim();
+
+      if (!id) {
+        alert("Veuillez entrer un ID valide.");
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `http://localhost:3000/api/visiteurs/${id}`
+        );
+        const visiteur = await response.json();
+
+        if (!response.ok) {
+          alert(visiteur.error || "Erreur lors de la recherche.");
+          return;
+        }
+
+        currentVisiteurId = visiteur.id;
+
+        // Injecter dans tous les inputs "visiteur_id"
+        document.querySelectorAll('input[name="visiteur_id"]').forEach((el) => {
+          el.value = visiteur.id;
+        });
+
+        // Si on est en mode "entrer", on préremplit les infos
+        if (currentAction === "entrer") {
+          document.querySelector(
+            'section[data-step="6"] input[name="nom"]'
+          ).value = visiteur.nom;
+          document.querySelector(
+            'section[data-step="6"] input[name="prenom"]'
+          ).value = visiteur.prenom;
+          document.querySelector(
+            'section[data-step="6"] input[name="email"]'
+          ).value = visiteur.email;
+
+          goToStep(5); // Choix du type de visite
+        } else if (currentAction === "sortir") {
+          goToStep(8); // Confirmation sortie
+        }
+      } catch (err) {
+        console.error("Erreur lors de la recherche par ID :", err);
+        alert("Erreur lors de la recherche.");
+      }
+    });
+  }
+
+  // Étape 4 : Identification par email (form submit)
+  const rechercheForm = document.getElementById("recherche-form");
+  if (rechercheForm) {
+    rechercheForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      console.log("Recherche soumise");
+      const email = e.target.email.value.trim();
+      if (!email) {
+        alert("Veuillez entrer un email.");
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `http://localhost:3000/api/visiteurs/email/${encodeURIComponent(
+            email
+          )}`
+        );
+
+        const visiteur = await response.json();
+
+        if (!response.ok) {
+          alert(visiteur.error || "Erreur lors de la recherche.");
+          return;
+        }
+
+        console.log("✅ Email trouvé, visiteur :", visiteur);
+
+        currentVisiteurId = visiteur.id;
+
+        // Injecter dans les formulaires
+        document.querySelectorAll('input[name="visiteur_id"]').forEach((el) => {
+          el.value = visiteur.id;
+        });
+
+        if (currentAction === "entrer") {
+          document.querySelector(
+            'section[data-step="6"] input[name="nom"]'
+          ).value = visiteur.nom;
+          document.querySelector(
+            'section[data-step="6"] input[name="prenom"]'
+          ).value = visiteur.prenom;
+          document.querySelector(
+            'section[data-step="6"] input[name="email"]'
+          ).value = visiteur.email;
+          goToStep(5);
+        } else {
+          goToStep(8);
+        }
+      } catch (err) {
+        console.error("Erreur recherche email :", err);
+        alert("Erreur lors de la recherche.");
+      }
+    });
+  }
+
+  // Étape 5 : Choix du type de visite
+  document
     .querySelector('[data-type="personnel"]')
-    .addEventListener("click", () => {
+    ?.addEventListener("click", () => {
       document.getElementById("type_visite").value = "personnel";
       document.getElementById("employe-group").classList.remove("hidden");
       document.getElementById("formation-group").classList.add("hidden");
-      goToStep(4);
+      goToStep(6);
     });
 
   document
     .querySelector('[data-type="formation"]')
-    .addEventListener("click", () => {
+    ?.addEventListener("click", () => {
       document.getElementById("type_visite").value = "formation";
       document.getElementById("formation-group").classList.remove("hidden");
       document.getElementById("employe-group").classList.add("hidden");
-      goToStep(4);
+      goToStep(6);
     });
+
+  // Boutons ← Retour
+  document.querySelectorAll(".btn-retour").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      goBack();
+    });
+  });
+
+  // Boutons 🏠 Accueil
+  document.querySelectorAll(".btn-accueil").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      resetWizard();
+    });
+  });
+
+  // Étapes finales : retour à l’accueil
+  document.getElementById("retour-accueil")?.addEventListener("click", () => {
+    resetWizard();
+  });
+
+  document.getElementById("retour-accueil-2")?.addEventListener("click", () => {
+    resetWizard();
+  });
 }
