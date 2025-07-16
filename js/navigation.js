@@ -217,4 +217,6 @@ export function setupNavigation() {
   document.getElementById("retour-accueil-2")?.addEventListener("click", () => {
     resetWizard();
   });
+
+  console.log("📦 Navigation initialisée");
 }
