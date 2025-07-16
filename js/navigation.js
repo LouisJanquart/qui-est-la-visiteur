@@ -9,10 +9,13 @@ const BASE_URL =
     ? "http://localhost:3000"
     : "https://qui-est-la-api.onrender.com";
 
-// Aller à une étape
-export function goToStep(step) {
+// 🧭 Aller à une étape
+export function goToStep(step, { addToHistory = true } = {}) {
   console.log(`🔁 goToStep(${step}) from step ${currentStep}`);
-  history.push(currentStep); // On garde une trace du précédent
+
+  if (addToHistory) {
+    history.push(currentStep);
+  }
 
   document.querySelectorAll(".step").forEach((section) => {
     section.classList.toggle("hidden", +section.dataset.step !== step);
@@ -22,15 +25,16 @@ export function goToStep(step) {
   console.log("🧭 Historique :", [...history]);
 }
 
-// Retour à l'étape précédente
+// ⬅️ Retour à l'étape précédente
 export function goBack() {
-  if (history.length === 0) return;
   const prev = history.pop();
-  console.log(`⬅️ Retour vers l'étape ${prev}`);
-  goToStep(prev);
+  if (prev != null) {
+    console.log(`⬅️ Retour vers l'étape ${prev}`);
+    goToStep(prev, { addToHistory: false });
+  }
 }
 
-// Réinitialisation complète
+// 🧼 Réinitialisation complète
 export function resetWizard() {
   history = [];
   currentAction = null;
@@ -40,7 +44,7 @@ export function resetWizard() {
     input.value = "";
   });
 
-  goToStep(1);
+  goToStep(1, { addToHistory: false });
 }
 
 export function setupNavigation() {
