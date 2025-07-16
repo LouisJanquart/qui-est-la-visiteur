@@ -7,8 +7,6 @@ export const setupRetourAccueil = () => {
   ];
 
   boutonsRetour.forEach((btn) => {
-    if (btn) {
-      btn.addEventListener("click", resetWizard);
-    }
+    btn?.addEventListener("click", resetWizard);
   });
 };
