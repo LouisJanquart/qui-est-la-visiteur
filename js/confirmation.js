@@ -9,4 +9,10 @@ export const setupRetourAccueil = () => {
   boutonsRetour.forEach((btn) => {
     btn?.addEventListener("click", resetWizard);
   });
+
+  document
+    .getElementById("btn-imprimer-etiquette")
+    ?.addEventListener("click", () => {
+      window.print();
+    });
 };

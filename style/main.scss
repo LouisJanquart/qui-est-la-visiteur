@@ -104,3 +104,38 @@ form {
     font-size: 1.1rem;
   }
 }
+
+@media print {
+  body {
+    background: white;
+    color: black;
+    font-family: sans-serif;
+  }
+
+  main {
+    padding: 0;
+  }
+
+  /* N'affiche que l'étiquette */
+  body * {
+    visibility: hidden;
+  }
+
+  #etiquette,
+  #etiquette * {
+    visibility: visible;
+  }
+
+  #etiquette {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 1rem;
+  }
+
+  /* Supprime les marges inutiles */
+  @page {
+    margin: 1cm;
+  }
+}
