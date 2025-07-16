@@ -9,13 +9,22 @@ const BASE_URL =
 export let currentAction = null; // "entrer" ou "sortir"
 export let currentVisiteurId = null;
 
-export function goToStep(step) {
+export function goToStep(step, options = { skipHistory: false }) {
   console.log(`🔁 goToStep(${step}) from step ${currentStep}`);
-  if (step !== currentStep) history.push(currentStep);
+  if (!options.skipHistory && step !== currentStep) {
+    history.push(currentStep);
+  }
   document.querySelectorAll(".step").forEach((section) => {
     section.classList.toggle("hidden", +section.dataset.step !== step);
   });
   currentStep = step;
+}
+
+export function goBack() {
+  const prev = history.pop();
+  if (prev) {
+    goToStep(prev, { skipHistory: true }); // éviter d'empiler les retours
+  }
 }
 
 export function goBack() {
