@@ -8,3 +8,13 @@ setupNavigation();
 setupEntreeForm();
 setupSortieForm();
 setupRetourAccueil();
+
+// Bouton retour
+document
+  .querySelectorAll(".btn-retour")
+  .forEach((btn) => btn.addEventListener("click", goBack));
+
+// Bouton accueil
+document
+  .querySelectorAll(".btn-accueil")
+  .forEach((btn) => btn.addEventListener("click", resetWizard));
