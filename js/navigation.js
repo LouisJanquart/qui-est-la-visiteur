@@ -4,17 +4,15 @@ let history = [];
 export let currentAction = null;
 export let currentVisiteurId = null;
 
-let isGoingBack = false; // 🔐 empêche les boucles
-
 const BASE_URL =
   window.location.hostname === "localhost"
     ? "http://localhost:3000"
     : "https://qui-est-la-api.onrender.com";
 
-export function goToStep(step) {
+export function goToStep(step, skipHistory = false) {
   console.log(`🔁 goToStep(${step}) from step ${currentStep}`);
 
-  if (!isGoingBack) {
+  if (!skipHistory && step !== currentStep) {
     history.push(currentStep);
   }
 
@@ -30,9 +28,7 @@ export function goBack() {
   const prev = history.pop();
   if (prev != null) {
     console.log(`⬅️ Retour vers l'étape ${prev}`);
-    isGoingBack = true;
-    goToStep(prev);
-    isGoingBack = false;
+    goToStep(prev, true); // skipHistory = true pour ne pas ajouter l'étape actuelle
   }
 }
 
@@ -55,9 +51,9 @@ export function setupNavigation() {
     btn.addEventListener("click", () => {
       currentAction = action;
       if (action === "entrer") {
-        goToStep(2); // demande si déjà venu
+        goToStep(2);
       } else {
-        goToStep(3); // identification directe pour sortir
+        goToStep(3);
       }
     });
   });
@@ -65,11 +61,11 @@ export function setupNavigation() {
   // Étape 2 : Déjà venu ?
   document
     .querySelector('[data-deja-venu="oui"]')
-    ?.addEventListener("click", () => goToStep(3)); // ID ou email
+    ?.addEventListener("click", () => goToStep(3));
 
   document
     .querySelector('[data-deja-venu="non"]')
-    ?.addEventListener("click", () => goToStep(5)); // type de visite
+    ?.addEventListener("click", () => goToStep(5));
 
   // Étape 3 : Identification par ID → bouton vers email
   document.getElementById("btn-par-email")?.addEventListener("click", () => {
@@ -98,13 +94,11 @@ export function setupNavigation() {
 
         currentVisiteurId = visiteur.id;
 
-        // Injecter dans tous les inputs "visiteur_id"
         document.querySelectorAll('input[name="visiteur_id"]').forEach((el) => {
           el.value = visiteur.id;
         });
 
-        // Si on est en mode "entrer", on préremplit les infos
-        if (currentAction === "entrer") {
+        if (currentAction === "entrer" && currentStep !== 5) {
           document.querySelector(
             'section[data-step="6"] input[name="nom"]'
           ).value = visiteur.nom;
@@ -115,9 +109,9 @@ export function setupNavigation() {
             'section[data-step="6"] input[name="email"]'
           ).value = visiteur.email;
 
-          goToStep(5); // Choix du type de visite
+          goToStep(5);
         } else if (currentAction === "sortir") {
-          goToStep(8); // Confirmation sortie
+          goToStep(8);
         }
       } catch (err) {
         console.error("Erreur lors de la recherche par ID :", err);
@@ -126,13 +120,13 @@ export function setupNavigation() {
     });
   }
 
-  // Étape 4 : Identification par email (form submit)
+  // Étape 4 : Identification par email
   const rechercheForm = document.getElementById("recherche-form");
   if (rechercheForm) {
     rechercheForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      console.log("Recherche soumise");
       const email = e.target.email.value.trim();
+
       if (!email) {
         alert("Veuillez entrer un email.");
         return;
@@ -142,7 +136,6 @@ export function setupNavigation() {
         const response = await fetch(
           `${BASE_URL}/api/visiteurs/email/${encodeURIComponent(email)}`
         );
-
         const visiteur = await response.json();
 
         if (!response.ok) {
@@ -150,11 +143,8 @@ export function setupNavigation() {
           return;
         }
 
-        console.log("✅ Email trouvé, visiteur :", visiteur);
-
         currentVisiteurId = visiteur.id;
 
-        // Injecter dans les formulaires
         document.querySelectorAll('input[name="visiteur_id"]').forEach((el) => {
           el.value = visiteur.id;
         });
@@ -213,7 +203,6 @@ export function setupNavigation() {
     });
   });
 
-  // Étapes finales : retour à l’accueil
   document.getElementById("retour-accueil")?.addEventListener("click", () => {
     resetWizard();
   });
